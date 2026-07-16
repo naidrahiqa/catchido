@@ -1,0 +1,89 @@
+[build-system]
+requires = ["setuptools>=61.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "catchido"
+version = "0.2.0"
+description = "Catchido — Smart HD media scraper & organizer for JP/KR idol photos from Instagram, Twitter/X, Threads, TikTok, and Weibo."
+readme = "README.md"
+requires-python = ">=3.12"
+authors = [
+    { name = "Castorice" }
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Environment :: Console",
+    "Topic :: Multimedia :: Graphics",
+    "License :: OSI Approved :: MIT License",
+]
+dependencies = [
+    "httpx[http2]>=0.27",
+    "click>=8.1",
+    "beautifulsoup4>=4.12",
+    "lxml>=5.0",
+    "Pillow>=10.0",
+    "imagehash>=4.3",
+    "rich>=13.0",
+    "loguru>=0.7",
+    "playwright>=1.40",
+    "aiosqlite>=0.20",
+    "textual>=0.80",
+    "fastapi>=0.110",
+    "uvicorn>=0.28",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.23",
+    "ruff>=0.4",
+    "mypy>=1.10",
+]
+
+[project.scripts]
+catchido = "catchido.cli:cli"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 120
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings
+    "F",    # pyflakes
+    "I",    # isort
+    "B",    # flake8-bugbear
+    "UP",   # pyupgrade
+    "SIM",  # flake8-simplify
+    "RUF",  # ruff-specific
+]
+ignore = [
+    "E501",   # line too long (handled by formatter)
+    "B008",   # function call in default argument (FastAPI Depends)
+    "SIM108", # ternary operator (readability preference)
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["catchido"]
+
+[tool.mypy]
+python_version = "3.12"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+check_untyped_defs = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"

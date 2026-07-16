@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catchido — Smart HD Media Manager</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Space+Grotesk:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="/static/style.css?v=2.2">
+</head>
+<body>
+    <div id="toast-container"></div>
+    <div class="app-layout">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="logo-area">
+                <i data-lucide="sparkles" class="logo-icon"></i>
+                <h1 class="logo-text">Catchido</h1>
+            </div>
+            <nav class="sidebar-nav">
+                <button class="nav-btn active" data-view="dashboard">
+                    <i data-lucide="layout-dashboard"></i>
+                    <span>Dashboard</span>
+                </button>
+                <button class="nav-btn" data-view="catalog">
+                    <i data-lucide="users"></i>
+                    <span>Tracked Idols</span>
+                </button>
+                <button class="nav-btn" data-view="settings">
+                    <i data-lucide="settings"></i>
+                    <span>Settings</span>
+                </button>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="job-badge" id="global-job-status">
+                    <span class="pulse-dot"></span>
+                    <span class="badge-text">Scraper Idle</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Body -->
+        <main class="main-content">
+            <!-- View 1: Dashboard -->
+            <section id="view-dashboard" class="view-panel active">
+                <header class="view-header">
+                    <h2>Dashboard</h2>
+                    <p>Overview of your archived HD media collections</p>
+                </header>
+
+                <div class="stats-grid">
+                    <div class="stats-card glow-purple">
+                        <div class="card-icon"><i data-lucide="users"></i></div>
+                        <div class="card-info">
+                            <span class="card-title">Tracked Idols</span>
+                            <span class="card-value" id="stat-idols">0</span>
+                        </div>
+                    </div>
+                    <div class="stats-card glow-pink">
+                        <div class="card-icon"><i data-lucide="image"></i></div>
+                        <div class="card-info">
+                            <span class="card-title">Downloaded Files</span>
+                            <span class="card-value" id="stat-files">0</span>
+                        </div>
+                    </div>
+                    <div class="stats-card glow-blue">
+                        <div class="card-icon"><i data-lucide="database"></i></div>
+                        <div class="card-info">
+                            <span class="card-title">Storage Usage</span>
+                            <span class="card-value" id="stat-size">0.00 B</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-rows">
+                    <!-- Platform stats -->
+                    <div class="data-box">
+                        <h3><i data-lucide="bar-chart-2"></i> Platform Distribution</h3>
+                        <div class="platform-stats-container" id="platform-stats-list">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                    <!-- Live console -->
+                    <div class="data-box console-box">
+                        <div class="console-header">
+                            <h3><i data-lucide="terminal"></i> Live Scraper Logs</h3>
+                            <button class="btn btn-sm btn-outline" id="btn-clear-console">Clear</button>
+                        </div>
+                        <div class="console-body" id="console-logs">
+                            <span class="log-line system-line">Welcome to Catchido Web GUI. Start a download to stream logs.</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- View 2: Catalog -->
+            <section id="view-catalog" class="view-panel">
+                <header class="view-header catalog-header">
+                    <div>
+                        <h2>Tracked Idols Catalog</h2>
+                        <p>Manage and browse profiles in your collection</p>
+                    </div>
+                    <button class="btn btn-primary" id="btn-open-add-modal">
+                        <i data-lucide="user-plus"></i> Add New Idol
+                    </button>
+                </header>
+
+                <div class="search-bar-row">
+                    <div class="input-icon-wrapper">
+                        <i data-lucide="search" class="input-icon"></i>
+                        <input type="text" class="form-control" id="catalog-search" placeholder="Search by name, group, or status...">
+                    </div>
+                </div>
+
+                <div class="idols-grid" id="idols-list-grid">
+                    <!-- Populated dynamically -->
+                </div>
+            </section>
+
+            <!-- View 3: Idol Details & Gallery -->
+            <section id="view-idol-detail" class="view-panel">
+                <header class="view-header detail-header-row">
+                    <button class="btn btn-outline btn-back" id="btn-back-to-catalog">
+                        <i data-lucide="arrow-left"></i> Back to Catalog
+                    </button>
+                    <div class="detail-actions">
+                        <div class="depth-toggle-group">
+                            <label class="depth-toggle-label">Depth</label>
+                            <div class="depth-toggle">
+                                <button class="depth-btn active" data-depth="recent" id="depth-recent">Recent</button>
+                                <button class="depth-btn" data-depth="full" id="depth-full">Full History</button>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary btn-glow" id="btn-scrape-idol">
+                            <i data-lucide="download-cloud"></i> Scrape & Download
+                        </button>
+                        <button class="btn btn-outline" id="btn-edit-idol">
+                            <i data-lucide="pencil"></i> Edit
+                        </button>
+                        <button class="btn btn-danger" id="btn-delete-idol">
+                            <i data-lucide="trash-2"></i> Delete
+                        </button>
+                    </div>
+                </header>
+
+                <div class="profile-detail-card">
+                    <div class="profile-avatar-large"><i data-lucide="user"></i></div>
+                    <div class="profile-info-grid">
+                        <div class="profile-header-group">
+                            <h2 id="detail-display-name">Stella</h2>
+                            <span class="badge" id="detail-type">KR</span>
+                        </div>
+                        <p class="profile-subtitle" id="detail-subtitle">Hearts2Hearts — SM Entertainment</p>
+                        
+                        <div class="profile-meta-fields" id="detail-fields-grid">
+                            <!-- Populated dynamically -->
+                        </div>
+                        
+                        <div class="profile-accounts-section">
+                            <h4>Trusted Sources</h4>
+                            <div class="account-badges" id="detail-accounts-list">
+                                <!-- Populated dynamically -->
+                            </div>
+                            <div id="add-source-form" style="margin-top: 12px; display: flex; gap: 8px; align-items: center;">
+                                <select id="add-source-platform" class="form-control" style="width: 140px; padding: 6px 10px; font-size: 13px;">
+                                    <option value="instagram">Instagram</option>
+                                    <option value="twitter">Twitter</option>
+                                    <option value="threads">Threads</option>
+                                    <option value="tiktok">TikTok</option>
+                                    <option value="weibo">Weibo</option>
+                                </select>
+                                <input type="text" class="form-control" id="add-source-username" placeholder="@username or paste a link" style="flex: 1; padding: 6px 10px; font-size: 13px;">
+                                <button class="btn btn-primary btn-sm" id="btn-add-source" style="padding: 6px 14px; font-size: 13px;"><i data-lucide="plus"></i> Add</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gallery Section -->
+                <div class="gallery-section">
+                    <div class="gallery-header">
+                        <h3><i data-lucide="images"></i> Photo Gallery (<span id="gallery-count">0</span>)</h3>
+                    </div>
+                    <div id="download-progress-bar" style="display:none;margin-bottom:12px">
+                        <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px">
+                            <span id="progress-status">Idle</span>
+                            <span id="progress-count">0/0</span>
+                        </div>
+                        <div style="height:6px;background:var(--border-color);border-radius:3px;overflow:hidden">
+                            <div id="progress-fill" style="height:100%;width:0%;background:var(--pink);border-radius:3px;transition:width 0.3s"></div>
+                        </div>
+                    </div>
+                    <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap">
+                        <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer">
+                            <input type="checkbox" id="platform-filter-toggle" onchange="togglePlatformFilter()">
+                            Filter by platform
+                        </label>
+                        <div id="platform-filter-chips" style="display:none;gap:6px;flex-wrap:wrap">
+                            <button class="btn-sm filter-chip active" data-platform="all" onclick="setPlatformFilter('all')">All</button>
+                            <button class="btn-sm filter-chip" data-platform="instagram" onclick="setPlatformFilter('instagram')">Instagram</button>
+                            <button class="btn-sm filter-chip" data-platform="twitter" onclick="setPlatformFilter('twitter')">Twitter</button>
+                            <button class="btn-sm filter-chip" data-platform="threads" onclick="setPlatformFilter('threads')">Threads</button>
+                            <button class="btn-sm filter-chip" data-platform="tiktok" onclick="setPlatformFilter('tiktok')">TikTok</button>
+                            <button class="btn-sm filter-chip" data-platform="weibo" onclick="setPlatformFilter('weibo')">Weibo</button>
+                        </div>
+                    </div>
+                    <div class="gallery-grid" id="idol-gallery-grid">
+                        <!-- Populated dynamically -->
+                    </div>
+                    <div id="gallery-load-more" style="text-align:center;margin-top:20px;display:none">
+                        <button class="btn-primary" onclick="loadMoreMedia()">Load More</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- View 4: Settings -->
+            <section id="view-settings" class="view-panel">
+                <header class="view-header">
+                    <h2>Application Settings</h2>
+                    <p>Configure paths, API credentials, and sessions</p>
+                </header>
+
+                <form class="settings-form" id="form-settings">
+                    <div class="settings-section">
+                        <h3>General Settings</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="setting-download-dir">Download Directory</label>
+                                <input type="text" class="form-control" id="setting-download-dir">
+                            </div>
+                            <div class="form-group">
+                                <label for="setting-max-downloads">Max Concurrent Downloads</label>
+                                <input type="number" class="form-control" id="setting-max-downloads">
+                            </div>
+                            <div class="form-group">
+                                <label for="setting-dedup-threshold">Deduplication Hamming Threshold</label>
+                                <input type="number" class="form-control" id="setting-dedup-threshold">
+                            </div>
+                        </div>
+                        <div class="checkbox-group">
+                            <label class="switch-container">
+                                <input type="checkbox" id="setting-auto-dedup">
+                                <span class="slider"></span>
+                                <span class="label-text">Auto Deduplicate on download</span>
+                            </label>
+                            <label class="switch-container">
+                                <input type="checkbox" id="setting-prefer-highres">
+                                <span class="slider"></span>
+                                <span class="label-text">Prefer higher resolution (overwrite duplicates)</span>
+                            </label>
+                            <label class="switch-container">
+                                <input type="checkbox" id="setting-download-photos">
+                                <span class="slider"></span>
+                                <span class="label-text">Download Photos</span>
+                            </label>
+                            <label class="switch-container">
+                                <input type="checkbox" id="setting-download-videos">
+                                <span class="slider"></span>
+                                <span class="label-text">Download Videos</span>
+                            </label>
+                        </div>
+                        
+                        <div class="form-group" style="margin-top: 16px;">
+                            <label for="setting-auto-scrape-interval">Auto Scrape Interval (Hours, 0 to disable)</label>
+                            <input type="number" class="form-control" id="setting-auto-scrape-interval" min="0" max="720" placeholder="e.g. 6 (scrapes all idols every 6 hours in the background)">
+                        </div>
+                    </div>
+
+                    <div class="settings-section">
+                        <h3>Search & Filtering</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="setting-min-relevance">Min Relevance Score (0.0 - 1.0)</label>
+                                <input type="number" class="form-control" id="setting-min-relevance" min="0" max="1" step="0.05" placeholder="0.3">
+                            </div>
+                        </div>
+                        <div class="checkbox-group">
+                            <label class="switch-container">
+                                <input type="checkbox" id="setting-auto-discover">
+                                <span class="slider"></span>
+                                <span class="label-text">Auto-discover accounts from mentions</span>
+                            </label>
+                            <label class="switch-container">
+                                <input type="checkbox" id="setting-auto-keywords">
+                                <span class="slider"></span>
+                                <span class="label-text">Auto-generate keywords from profile</span>
+                            </label>
+                            <label class="switch-container">
+                                <input type="checkbox" id="setting-include-fan">
+                                <span class="slider"></span>
+                                <span class="label-text">Include fan-taken content</span>
+                            </label>
+                            <label class="switch-container">
+                                <input type="checkbox" id="setting-exclude-fanart">
+                                <span class="slider"></span>
+                                <span class="label-text">Exclude fanart/drawings</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="settings-section">
+                        <h3>Proxy</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="switch-container" style="justify-content: space-between; padding: 0;">
+                                    <span class="label-text">Enable Proxy</span>
+                                    <input type="checkbox" id="setting-proxy-enabled" style="margin-left: auto;">
+                                </label>
+                            </div>
+                            <div class="form-group">
+                                <label for="setting-proxy-http">HTTP Proxy</label>
+                                <input type="text" class="form-control" id="setting-proxy-http" placeholder="http://proxy:8080">
+                            </div>
+                            <div class="form-group">
+                                <label for="setting-proxy-https">HTTPS Proxy</label>
+                                <input type="text" class="form-control" id="setting-proxy-https" placeholder="https://proxy:8080">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="settings-section">
+                        <h3>Request Delays (seconds between scrapes)</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="setting-twitter-delay">Twitter</label>
+                                <input type="number" class="form-control" id="setting-twitter-delay" min="0" max="60" step="0.5">
+                            </div>
+                            <div class="form-group">
+                                <label for="setting-ig-delay">Instagram</label>
+                                <input type="number" class="form-control" id="setting-ig-delay" min="0" max="60" step="0.5">
+                            </div>
+                            <div class="form-group">
+                                <label for="setting-threads-delay">Threads</label>
+                                <input type="number" class="form-control" id="setting-threads-delay" min="0" max="60" step="0.5">
+                            </div>
+                            <div class="form-group">
+                                <label for="setting-tiktok-delay">TikTok</label>
+                                <input type="number" class="form-control" id="setting-tiktok-delay" min="0" max="60" step="0.5">
+                            </div>
+                            <div class="form-group">
+                                <label for="setting-weibo-delay">Weibo</label>
+                                <input type="number" class="form-control" id="setting-weibo-delay" min="0" max="60" step="0.5">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="settings-section">
+                        <h3>API Tokens & Sessions</h3>
+                        <p class="section-desc">Paste your cookies or bearer tokens below.</p>
+                        
+                        <div class="form-group">
+                            <label for="setting-twitter-bearer">Twitter Bearer Token (API v2)</label>
+                            <input type="password" class="form-control" id="setting-twitter-bearer" placeholder="Twitter Bearer Token">
+                        </div>
+                        <div class="form-group">
+                            <label for="setting-instagram-cookie">Instagram Session Cookie (sessionid)</label>
+                            <input type="password" class="form-control" id="setting-instagram-cookie" placeholder="Instagram sessionid cookie">
+                        </div>
+                        <div class="form-group">
+                            <label for="setting-threads-cookie">Threads Session Cookie</label>
+                            <input type="password" class="form-control" id="setting-threads-cookie" placeholder="Threads session cookie string">
+                        </div>
+                        <div class="form-group">
+                            <label for="setting-tiktok-cookie">TikTok Session Cookie (sessionid)</label>
+                            <input type="password" class="form-control" id="setting-tiktok-cookie" placeholder="TikTok sessionid cookie">
+                        </div>
+                        <div class="form-group">
+                            <label for="setting-weibo-cookie">Weibo Cookie (m.weibo.cn Cookie)</label>
+                            <textarea class="form-control textarea-field" id="setting-weibo-cookie" placeholder="Weibo cookie string"></textarea>
+                        </div>
+                        <div class="form-actions" style="margin-top: 8px;">
+                            <button type="button" class="btn btn-outline" id="btn-test-cookies"><i data-lucide="shield-check"></i> Test Cookies</button>
+                        </div>
+                        <div id="cookie-test-results" class="cookie-test-results hidden"></div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary" id="btn-save-settings">Save Settings</button>
+                    </div>
+                </form>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modal: Add/Edit Idol -->
+    <div class="modal-overlay" id="modal-add-idol">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3>Add New Tracked Idol</h3>
+                <button class="btn-close-modal" id="btn-close-add-modal"><i data-lucide="x"></i></button>
+            </div>
+            <form id="form-add-idol" class="modal-form">
+                <div class="modal-body">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="add-name">Display Name (e.g. Jisoo) *</label>
+                            <input type="text" class="form-control" id="add-name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="add-type">Idol Type *</label>
+                            <select class="form-control" id="add-type" required>
+                                <option value="jp">Japanese (J-Pop)</option>
+                                <option value="kr" selected>Korean (K-Pop)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- K-pop fields -->
+                    <div class="form-grid type-field-group kr-fields">
+                        <div class="form-group">
+                            <label for="add-hangul">Hangul Name</label>
+                            <input type="text" class="form-control" id="add-hangul">
+                        </div>
+                        <div class="form-group">
+                            <label for="add-stage-name">Stage Name</label>
+                            <input type="text" class="form-control" id="add-stage-name">
+                        </div>
+                        <div class="form-group">
+                            <label for="add-real-name">Real Name</label>
+                            <input type="text" class="form-control" id="add-real-name">
+                        </div>
+                        <div class="form-group">
+                            <label for="add-positions">Positions (comma-separated)</label>
+                            <input type="text" class="form-control" id="add-positions" placeholder="Vocalist, Visual">
+                        </div>
+                    </div>
+
+                    <!-- J-pop fields -->
+                    <div class="form-grid type-field-group jp-fields hidden">
+                        <div class="form-group">
+                            <label for="add-kanji">Kanji Name</label>
+                            <input type="text" class="form-control" id="add-kanji">
+                        </div>
+                        <div class="form-group">
+                            <label for="add-generation">Generation</label>
+                            <input type="text" class="form-control" id="add-generation" placeholder="e.g. 1st Gen">
+                        </div>
+                        <div class="form-group">
+                            <label for="add-team">Team</label>
+                            <input type="text" class="form-control" id="add-team" placeholder="e.g. Team A">
+                        </div>
+                        <div class="form-group">
+                            <label for="add-grad-date">Graduation Date</label>
+                            <input type="date" class="form-control" id="add-grad-date">
+                        </div>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="add-group">Group Name</label>
+                            <input type="text" class="form-control" id="add-group">
+                        </div>
+                        <div class="form-group">
+                            <label for="add-company">Company</label>
+                            <input type="text" class="form-control" id="add-company">
+                        </div>
+                        <div class="form-group">
+                            <label for="add-fandom">Fandom Name</label>
+                            <input type="text" class="form-control" id="add-fandom">
+                        </div>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="add-birthday">Birthday</label>
+                            <input type="date" class="form-control" id="add-birthday">
+                        </div>
+                        <div class="form-group">
+                            <label for="add-debut">Debut Date</label>
+                            <input type="date" class="form-control" id="add-debut">
+                        </div>
+                        <div class="form-group">
+                            <label for="add-status">Status</label>
+                            <select class="form-control" id="add-status">
+                                <option value="active" selected>Active</option>
+                                <option value="hiatus">Hiatus</option>
+                                <option value="graduated">Graduated (JP)</option>
+                                <option value="solo">Soloist</option>
+                                <option value="left">Left Group</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="add-nicknames">Nicknames (comma-separated)</label>
+                            <input type="text" class="form-control" id="add-nicknames">
+                        </div>
+                        <div class="form-group">
+                            <label for="add-exclude">Exclude Search Terms</label>
+                            <input type="text" class="form-control" id="add-exclude" placeholder="cosplay, fanart, AI생성">
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 16px; margin-bottom: 24px;">
+                        <label for="add-download-dir">Custom Download Directory (Optional — falls back to global setting)</label>
+                        <input type="text" class="form-control" id="add-download-dir" placeholder="Default global directory">
+                    </div>
+
+                    <div class="settings-divider">Source Accounts to Scrape</div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="add-twitter">Twitter Usernames (comma-separated)</label>
+                            <input type="text" class="form-control" id="add-twitter" placeholder="@username">
+                        </div>
+                        <div class="form-group">
+                            <label for="add-instagram">Instagram Usernames (comma-separated)</label>
+                            <input type="text" class="form-control" id="add-instagram" placeholder="@username">
+                        </div>
+                    </div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="add-threads">Threads Usernames (comma-separated)</label>
+                            <input type="text" class="form-control" id="add-threads" placeholder="@username">
+                        </div>
+                        <div class="form-group">
+                            <label for="add-tiktok">TikTok Usernames (comma-separated)</label>
+                            <input type="text" class="form-control" id="add-tiktok" placeholder="@username">
+                        </div>
+                        <div class="form-group">
+                            <label for="add-weibo">Weibo IDs (comma-separated)</label>
+                            <input type="text" class="form-control" id="add-weibo" placeholder="1234567890">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" id="btn-cancel-add-modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Idol</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Edit Idol -->
+    <div class="modal-overlay" id="modal-edit-idol">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3>Edit Tracked Idol</h3>
+                <button class="btn-close-modal" id="btn-close-edit-modal"><i data-lucide="x"></i></button>
+            </div>
+            <form id="form-edit-idol" class="modal-form">
+                <div class="modal-body">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="edit-name">Display Name (e.g. Jisoo) *</label>
+                            <input type="text" class="form-control" id="edit-name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-type">Idol Type *</label>
+                            <select class="form-control" id="edit-type" required>
+                                <option value="jp">Japanese (J-Pop)</option>
+                                <option value="kr" selected>Korean (K-Pop)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- K-pop fields -->
+                    <div class="form-grid type-field-group kr-fields">
+                        <div class="form-group">
+                            <label for="edit-hangul">Hangul Name</label>
+                            <input type="text" class="form-control" id="edit-hangul">
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-stage-name">Stage Name</label>
+                            <input type="text" class="form-control" id="edit-stage-name">
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-real-name">Real Name</label>
+                            <input type="text" class="form-control" id="edit-real-name">
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-positions">Positions (comma-separated)</label>
+                            <input type="text" class="form-control" id="edit-positions" placeholder="Vocalist, Visual">
+                        </div>
+                    </div>
+
+                    <!-- J-pop fields -->
+                    <div class="form-grid type-field-group jp-fields hidden">
+                        <div class="form-group">
+                            <label for="edit-kanji">Kanji Name</label>
+                            <input type="text" class="form-control" id="edit-kanji">
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-generation">Generation</label>
+                            <input type="text" class="form-control" id="edit-generation" placeholder="e.g. 1st Gen">
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-team">Team</label>
+                            <input type="text" class="form-control" id="edit-team" placeholder="e.g. Team A">
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-grad-date">Graduation Date</label>
+                            <input type="date" class="form-control" id="edit-grad-date">
+                        </div>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="edit-group">Group Name</label>
+                            <input type="text" class="form-control" id="edit-group">
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-company">Company</label>
+                            <input type="text" class="form-control" id="edit-company">
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-fandom">Fandom Name</label>
+                            <input type="text" class="form-control" id="edit-fandom">
+                        </div>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="edit-birthday">Birthday</label>
+                            <input type="date" class="form-control" id="edit-birthday">
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-debut">Debut Date</label>
+                            <input type="date" class="form-control" id="edit-debut">
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-status">Status</label>
+                            <select class="form-control" id="edit-status">
+                                <option value="active">Active</option>
+                                <option value="hiatus">Hiatus</option>
+                                <option value="graduated">Graduated (JP)</option>
+                                <option value="solo">Soloist</option>
+                                <option value="left">Left Group</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="edit-nicknames">Nicknames (comma-separated)</label>
+                            <input type="text" class="form-control" id="edit-nicknames">
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-exclude">Exclude Search Terms</label>
+                            <input type="text" class="form-control" id="edit-exclude" placeholder="cosplay, fanart, AI생성">
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 16px; margin-bottom: 24px;">
+                        <label for="edit-download-dir">Custom Download Directory (Optional — falls back to global setting)</label>
+                        <input type="text" class="form-control" id="edit-download-dir" placeholder="Default global directory">
+                    </div>
+
+                    <div class="settings-divider">Source Accounts to Scrape</div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="edit-twitter">Twitter Usernames (comma-separated)</label>
+                            <input type="text" class="form-control" id="edit-twitter" placeholder="@username">
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-instagram">Instagram Usernames (comma-separated)</label>
+                            <input type="text" class="form-control" id="edit-instagram" placeholder="@username">
+                        </div>
+                    </div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="edit-threads">Threads Usernames (comma-separated)</label>
+                            <input type="text" class="form-control" id="edit-threads" placeholder="@username">
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-tiktok">TikTok Usernames (comma-separated)</label>
+                            <input type="text" class="form-control" id="edit-tiktok" placeholder="@username">
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-weibo">Weibo IDs (comma-separated)</label>
+                            <input type="text" class="form-control" id="edit-weibo" placeholder="1234567890">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" id="btn-cancel-edit-modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Update Idol</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Lightbox Modal for Photo Inspection -->
+    <div class="lightbox-overlay" id="lightbox-modal">
+        <button class="lightbox-close"><i data-lucide="x"></i></button>
+        <button class="lightbox-nav lightbox-prev"><i data-lucide="chevron-left"></i></button>
+        <button class="lightbox-nav lightbox-next"><i data-lucide="chevron-right"></i></button>
+        
+        <div class="lightbox-content">
+            <img src="" alt="HD Media Preview" id="lightbox-img">
+            <div class="lightbox-details">
+                <span class="lightbox-platform-badge" id="lightbox-platform">Twitter</span>
+                <p class="lightbox-caption" id="lightbox-caption">Capturing photo...</p>
+                <div class="lightbox-meta">
+                    <span id="lightbox-post-id">Post: 12345678</span>
+                    <span id="lightbox-date">2026-07-11</span>
+                </div>
+                <button class="btn btn-danger btn-sm" id="btn-delete-media" style="margin-top:12px;width:100%" onclick="deleteCurrentMedia()">
+                    <i data-lucide="trash-2"></i> Delete
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/app.js?v=2.2"></script>
+    <script>
+        // Initialize Lucide icons on page load
+        document.addEventListener("DOMContentLoaded", () => {
+            lucide.createIcons();
+        });
+    </script>
+</body>
+</html>

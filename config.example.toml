@@ -1,0 +1,128 @@
+[general]
+download_dir = "C:\\Pictures\\Catchido"
+max_concurrent_downloads = 5
+auto_dedup = true
+dedup_threshold = 5          # hamming distance threshold
+prefer_higher_res = true     # auto-replace with higher res duplicates
+log_level = "INFO"
+log_file = "./logs/oshi-hunter.log"
+
+[twitter]
+bearer_token = ""
+rate_limit_wait = 15         # seconds to wait on rate limit
+include_retweets = false
+min_resolution = [1080, 1080]  # minimum width x height
+
+[weibo]
+cookie = ""
+use_playwright = false       # fallback to browser automation
+request_delay = 2            # seconds between requests
+
+[instagram]
+session_cookie = ""          # Optional: sessionid cookie to bypass rate limit
+request_delay = 2            # seconds between requests
+
+[proxy]
+enabled = false
+http = ""
+https = ""
+
+[search]
+min_relevance_score = 0.3    # skip posts below this score
+auto_discover_accounts = true
+auto_generate_keywords = true
+include_fan_content = true   # include fan-taken photos
+exclude_fanart = true        # filter out drawings/fanart
+
+# ============================================
+#  🇯🇵 Japanese Idol (Oshi) Example
+# ============================================
+[[oshi]]
+name = "Saito Asuka"
+idol_type = "jp"
+tags = ["nogizaka46", "idol", "sakamichi"]
+
+[oshi.profile]
+kanji_name = "齋藤飛鳥"
+group = "乃木坂46"
+company = "Sony Music / 乃木坂46合同会社"
+generation = "1期生"
+birthday = "1998-08-10"
+debut_date = "2011-08-21"
+graduation_date = "2023-05-31"
+status = "graduated"
+blood_type = "O"
+birthplace = "東京都"
+official_instagram = "@asaborhythm_official"
+
+[oshi.keywords]
+kanji = ["齋藤飛鳥", "斉藤飛鳥"]
+hiragana = ["さいとうあすか"]
+katakana = ["サイトウアスカ"]
+romaji = ["Saito Asuka", "Saitou Asuka"]
+nicknames = ["あすかりん", "飛鳥ちゃん", "asukarin"]
+group = ["乃木坂46", "Nogizaka46"]
+hashtags = ["#齋藤飛鳥", "#乃木坂46", "#あすかりん", "#asukasaito"]
+exclude = ["cosplay", "fanart", "イラスト"]
+
+[[oshi.sources]]
+platform = "twitter"
+username = "@myfanaccount"
+type = "fansite"
+
+[[oshi.sources]]
+platform = "weibo"
+user_id = "1234567890"
+type = "fansite"
+
+# ============================================
+#  🇰🇷 Korean Idol (Bias) Example
+# ============================================
+[[oshi]]
+name = "Jisoo"
+idol_type = "kr"
+tags = ["blackpink", "kpop", "yg"]
+
+[oshi.profile]
+hangul_name = "김지수"
+stage_name = "Jisoo"
+real_name = "Kim Jisoo"
+group = "BLACKPINK"
+company = "YG Entertainment"
+positions = ["Main Vocal", "Visual"]
+fandom_name = "BLINK"
+birthday = "1995-01-03"
+debut_date = "2016-08-08"
+status = "active"
+blood_type = "A"
+birthplace = "서울"
+official_instagram = "@sooyaaa__"
+official_youtube = "@Jisoo"
+
+[oshi.keywords]
+hangul = ["김지수", "지수"]
+hangul_nicknames = ["지수야", "치츄"]
+stage_name = "Jisoo"
+real_name = "Kim Jisoo"
+romaji = ["Kim Jisoo", "Kim Ji-soo", "Jisoo Kim"]
+nicknames = ["치츄", "jichu", "공주님"]
+group = ["BLACKPINK", "블랙핑크", "블핑"]
+fandom = "BLINK"
+chinese_name = ["金智秀"]
+hashtags = ["#JISOO", "#지수", "#김지수", "#블랙핑크", "#BLACKPINK", "#BLINK"]
+exclude = ["fanart", "AI생성", "그림"]
+
+[[oshi.sources]]
+platform = "twitter"
+username = "@jisoofansite1"
+type = "fansite"
+
+[[oshi.sources]]
+platform = "twitter"
+username = "@blackpinkdata"
+type = "fansite"
+
+[[oshi.sources]]
+platform = "weibo"
+user_id = "9876543210"
+type = "fansite"

@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+*.egg
+.venv/
+venv/
+
+# Logs
+logs/
+*.log
+
+# Config (secrets)
+config.toml
+config.local.toml
+
+# Database
+*.db
+*.sqlite
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Downloads (generated content)
+# Keep the structure but not the media files
+downloads/**/photos/*
+downloads/**/videos/*
